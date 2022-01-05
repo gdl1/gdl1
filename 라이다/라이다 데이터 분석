@@ -1,0 +1,15 @@
+ydlidar_driver.cpp에서
+AngleCorrectForDistance <- distance_q2(거리 데이터가 들어가는 변수)(648)
+(*node).angle_q6_checkbit <- AngleCorrectForDistance
+expect_angle <- angle_q6_checkbit
+checkbit <- angle_q6_checkbit
+angle_q6_checkbit <- checkbit
+frontAngle <- angle_q6_checkbit(791)
+expect_angle <- frontAngle(794)
+nodebuffer[i].angle_q6_checkbit <- expect_angle(797)
+pre_degree <- nodebuffer[0].angle_q6_checkbit(802)
+degree = nodebuffer[i].angle_q6_checkbit(805)
+zero_pos <- pre_degree, degree(806)(이거는 좌,우변 관계가 아닌 영향을 주는 관계)
+pre_degree = degree(810)
+tmpbuffer <- zero_pos(815)
+

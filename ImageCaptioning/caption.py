@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import skimage.transform
 import argparse
-from scipy.misc import imread, imresize
+from imageio import imread
+import cv2
 from PIL import Image
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -37,7 +38,7 @@ def caption_image_beam_search(encoder, decoder, image_path, word_map, beam_size=
         img = np.concatenate([img, img, img], axis=2)
         # 위의 img를 np.concatenate를 통해 img.shape=(x,y)->(x,y,3)으로 변경되어 컬러이미지로 바뀜
         # np.concatenate - 배열 합치는 기능
-    img = imresize(img, (256, 256))
+    img = cv2.resize(src=img, dsize=(256, 256))
     # imresize - 이미지의 크기를 조정
     img = img.transpose(2, 0, 1)
     # img.shape=(x,y,3)->(3,x,y)로 변경
@@ -123,8 +124,8 @@ def caption_image_beam_search(encoder, decoder, image_path, word_map, beam_size=
         next_word_inds = top_k_words % vocab_size  # (s)
 
         # Add new words to sequences, alphas
-        seqs = torch.cat([seqs[prev_word_inds], next_word_inds.unsqueeze(1)], dim=1)  # (s, step+1)
-        seqs_alpha = torch.cat([seqs_alpha[prev_word_inds], alpha[prev_word_inds].unsqueeze(1)],
+        seqs = torch.cat([seqs[prev_word_inds.long()], next_word_inds.unsqueeze(1)], dim=1)  # (s, step+1)
+        seqs_alpha = torch.cat([seqs_alpha[prev_word_inds.long()], alpha[prev_word_inds.long()].unsqueeze(1)],
                                dim=1)  # (s, step+1, enc_image_size, enc_image_size)
 
         # Which sequences are incomplete (didn't reach <end>)?
@@ -144,9 +145,9 @@ def caption_image_beam_search(encoder, decoder, image_path, word_map, beam_size=
             break
         seqs = seqs[incomplete_inds]
         seqs_alpha = seqs_alpha[incomplete_inds]
-        h = h[prev_word_inds[incomplete_inds]]
-        c = c[prev_word_inds[incomplete_inds]]
-        encoder_out = encoder_out[prev_word_inds[incomplete_inds]]
+        h = h[prev_word_inds.long()[incomplete_inds]]
+        c = c[prev_word_inds.long()[incomplete_inds]]
+        encoder_out = encoder_out[prev_word_inds.long()[incomplete_inds]]
         top_k_scores = top_k_scores[incomplete_inds].unsqueeze(1)
         k_prev_words = next_word_inds[incomplete_inds].unsqueeze(1)
 

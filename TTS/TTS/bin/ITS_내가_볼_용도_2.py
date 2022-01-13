@@ -14,6 +14,7 @@ import string
 from TTS.utils.synthesizer import Synthesizer
 import os
 import paramiko
+import time
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -42,6 +43,9 @@ def main():
     ssh.connect('192.168.123.8',22,'pi','skdnwjd1')
 
     ssh.exec_command("python3 Video_Capture.py")
+
+    # 캡쳐한 이미지를 저장하는 데 시간이 걸려서 딜레이
+    time.sleep(5)
 
     # 캡쳐한 이미지 다운로드
     sftp = ssh.open_sftp()

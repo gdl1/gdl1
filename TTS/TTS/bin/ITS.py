@@ -8,34 +8,30 @@ from ImageCaptioning import caption
 import torch
 import json
 from TTS.bin import *
-import string
 from TTS.utils.synthesizer import Synthesizer
 import os
+import paramiko
+import time
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def Video_capture():
-    cap = cv2.VideoCapture(0) #cv2.VideoCapture에 들어가는 숫자는 비디오 객체에 맞게 설정해줘야 함/ 0은 임의로 적은 것
-    if (not cap.isOpened()):
-        print('Error opening video')
-
-    height, width = (int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
-                    int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)))
-
-    ret, frame = cap.read()
-    # 제대로 프레임을 읽으면 ret값이 True, 실패하면 False가 나타남
-    # fram에 읽은 프레임이 나옵니다
-    if not ret:
-        print("프레임을 읽지 못 하였습니다.")
-        return 0
-    else:
-        return frame
-
 def main():
-    image_path = "/home/gdl1/gdl/caption_data/street.jpg"
-    #img = Video_capture()``
-    if image_path==0:
-        pass
+
+    # 원격 접속
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect('192.168.123.8',22,'pi','skdnwjd1')
+
+    ssh.exec_command("python3 Video_Capture.py")
+
+    # 캡쳐한 이미지를 저장하는 데 시간이 걸려서 딜레이
+    time.sleep(5)
+
+    # 캡쳐한 이미지 다운로드
+    sftp = ssh.open_sftp()
+    sftp.get('/home/pi/VC.png','/home/gdl1/gdl/caption_data/VC.png')
+
+    img = cv2.imread('/home/gdl1/gdl/caption_data/VC.png')
     model='/home/gdl1/gdl/caption_data/BEST_checkpoint_coco_5_cap_per_img_5_min_word_freq.pth.tar'
     word_map='/home/gdl1/gdl/caption_data/WORDMAP_coco_5_cap_per_img_5_min_word_freq.json'
     beam_size=5
@@ -52,7 +48,7 @@ def main():
         word_map = json.load(j)
     rev_word_map = {v: k for k, v in word_map.items()}
 
-    seq, _ = caption.caption_image_beam_search(encoder, decoder, image_path, word_map, beam_size)
+    seq, _ = caption.caption_image_beam_search(encoder, decoder, img, word_map, beam_size)
     words = [rev_word_map[ind] for ind in seq]
     words = words[1:len(words)-1]
     sentence = ""
@@ -85,12 +81,18 @@ def main():
 
     out_path = "/home/gdl1/gdl/caption_data"
     wav = synthesizer.tts(sentence)
-    file_name =  sentence.replace(" ", "_")[0:20]
-    file_name = file_name.translate(
-        str.maketrans('', '', string.punctuation.replace('_', ''))) + '.wav'
+    file_name =  'ITS'+ '.wav'
     out_path = os.path.join(out_path, file_name)
     print(" > Saving output to {}".format(out_path))
     synthesizer.save_wav(wav, out_path)
+
+    # ssh로 파일 업로드
+    sftp.put('/home/gdl1/gdl/caption_data/ITS.wav', '/home/pi/ITS.wav')
+
+    ssh.exec_command("python3 sound.py")
+    # 터미널 창에서 실행하듯이 적으면 됨
+
+    print("실행완료")
 
 if __name__ == "__main__":
     main()

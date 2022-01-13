@@ -1,9 +1,10 @@
+# 원격 접속 안 하는 코드
 import cv2
 import numpy as np
 import sys
-sys.path.append("/home/gdl1/gdl")
-sys.path.append("/home/gdl1/gdl/ImageCaptioning")
-sys.path.append("/home/gdl1/gdl/TTS")
+sys.path.append("/home/gdl3270/gdl")
+sys.path.append("/home/gdl3270/gdl/ImageCaptioning")
+sys.path.append("/home/gdl3270/gdl/TTS")
 from ImageCaptioning import caption
 import torch
 import json
@@ -13,6 +14,7 @@ from TTS.utils.synthesizer import Synthesizer
 import os
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print("cuda use or not : ",torch.cuda.is_available())
 
 def Video_capture():
     cap = cv2.VideoCapture(0) #cv2.VideoCapture에 들어가는 숫자는 비디오 객체에 맞게 설정해줘야 함/ 0은 임의로 적은 것
@@ -32,12 +34,12 @@ def Video_capture():
         return frame
 
 def main():
-    image_path = "/home/gdl1/gdl/caption_data/street.jpeg"
+    image_path = "/home/gdl3270/gdl/caption_data/street.jpeg"
     #img = Video_capture()``
     if image_path==0:
         pass
-    model='/home/gdl1/gdl/caption_data/BEST_checkpoint_coco_5_cap_per_img_5_min_word_freq.pth.tar'
-    word_map='/home/gdl1/gdl/caption_data/WORDMAP_coco_5_cap_per_img_5_min_word_freq.json'
+    model='/home/gdl3270/gdl/caption_data/BEST_checkpoint_coco_5_cap_per_img_5_min_word_freq.pth.tar'
+    word_map='/home/gdl3270/gdl/caption_data/WORDMAP_coco_5_cap_per_img_5_min_word_freq.json'
     beam_size=5
 
     checkpoint = torch.load(model, map_location=str(device))
@@ -61,10 +63,10 @@ def main():
     sentence += words[len(words)-1]
 
     # TTS 부분
-    model_path = "/home/gdl1/.local/share/tts/tts_models--en--ek1--tacotron2/model_file.pth.tar"
-    config_path = "/home/gdl1/.local/share/tts/tts_models--en--ek1--tacotron2/config.json"
-    vocoder_path = "/home/gdl1/.local/share/tts/vocoder_models--en--ek1--wavegrad/model_file.pth.tar"
-    vocoder_config_path = "/home/gdl1/.local/share/tts/vocoder_models--en--ek1--wavegrad/config.json"
+    model_path = "/home/gdl3270/share/tts/tts_models--en--ek1--tacotron2/model_file.pth.tar"
+    config_path = "/home/gdl3270/share/tts/tts_models--en--ek1--tacotron2/config.json"
+    vocoder_path = "/home/gdl3270/share/tts/vocoder_models--en--ek1--wavegrad/model_file.pth.tar"
+    vocoder_config_path = "/home/gdl3270/share/tts/vocoder_models--en--ek1--wavegrad/config.json"
     speakers_file_path =  None
     language_ids_file_path =  None
     encoder_path = None
@@ -98,7 +100,7 @@ def main():
 
     print(" > Text: {}".format(sentence))
 
-    out_path = "/home/gdl1/gdl/caption_data"
+    out_path = "/home/gdl3270/gdl/caption_data"
     wav = synthesizer.tts(sentence)
     file_name =  sentence.replace(" ", "_")[0:20]
     file_name = file_name.translate(

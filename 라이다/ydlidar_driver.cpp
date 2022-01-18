@@ -17,7 +17,7 @@ namespace ydlidar{
 	_serial(0) {
 		isConnected = false;
 		isScanning = false;
-        //串口配置参数
+        //직렬 포트 구성 매개변수
 		m_intensities = false;
         isAutoReconnect = true;
         isAutoconnting = false;
@@ -367,14 +367,14 @@ namespace ydlidar{
 		while(isScanning) {
 			if ((ans=waitScanData(local_buf, count)) != RESULT_OK) {
                 if (!IS_TIMEOUT(ans) || timeout_count > DEFAULT_TIMEOUT_COUNT ) {
-                    if(!isAutoReconnect) {//不重新连接, 退出线程
+                    if(!isAutoReconnect) {//不重新连接, 退出线程(다시 연결하지 말고 스레드를 종료하십시오.)
                         fprintf(stderr, "exit scanning thread!!\n");
                         fflush(stderr);
                         {
                             isScanning = false;
                         }
                         return RESULT_FAIL;
-                    } else {//做异常处理, 重新连接
+                    } else {//做异常处理, 重新连接(예외 처리 수행, 다시 연결)
                         isAutoconnting = true;
 						while(isAutoReconnect&&isAutoconnting) {
                             ans = autoReconnectLidar();
@@ -395,7 +395,7 @@ namespace ydlidar{
 			for (size_t pos = 0; pos < count; ++pos) {
 				if (local_buf[pos].sync_flag & LIDAR_RESP_MEASUREMENT_SYNCBIT) {
 					if ((local_scan[0].sync_flag & LIDAR_RESP_MEASUREMENT_SYNCBIT)) {
-						_lock.lock();//timeout lock, wait resource copy 
+						_lock.lock();//timeout lock, wait resource copy(시간 초과 잠금, 리소스 복사 대기)
 						memcpy(scan_node_buf, local_scan, scan_count*sizeof(node_info));
 						scan_node_count = scan_count;
 						_dataEvent.set();
@@ -517,10 +517,10 @@ namespace ydlidar{
                                 if((FirstSampleAngle >= 180*64) && (LastSampleAngle <= 180*64)){//
 									IntervalSampleAngle = (float)((360*64 + LastSampleAngle - FirstSampleAngle)/((package_Sample_Num-1)*1.0));
 									IntervalSampleAngle_LastPackage = IntervalSampleAngle;
-                                } else{//这里不应该发生
-                                    if( FirstSampleAngle > 360) {///< 负数
+                                } else{//这里不应该发生(여기서 일어나서는 안된다)
+                                    if( FirstSampleAngle > 360) {///< 음수
                                         IntervalSampleAngle = ((float)(LastSampleAngle - ((int16_t)FirstSampleAngle)))/(package_Sample_Num-1);
-                                    } else {//起始角大于结束角
+                                    } else {//起始角大于结束角(시작 각도가 끝 각도보다 큽니다.)
                                         uint16_t temp = FirstSampleAngle;
                                         FirstSampleAngle = LastSampleAngle;
                                         LastSampleAngle = temp;
@@ -913,18 +913,18 @@ namespace ydlidar{
 	}
 
     /**
-        * @brief 设置雷达异常自动重新连接 \n
-        * @param[in] enable    是否开启自动重连:
-        *     true	开启
-        *	  false 关闭
+        * @brief 레이더가 비정상적일 때 자동으로 재접속하도록 설정 \n
+        * @param[in] enable    자동 재접속 활성화 여부:
+        *     true	开启(켜다)
+        *	  false 关闭(폐쇄)
         */
     void YDlidarDriver::setAutoReconnect(const bool& enable) {  
         isAutoReconnect = enable;
     }
 
 	/**
-         * @brief 设置雷达采样倍频 \n
-         * @param[in] enable    是否开启采样倍频:
+         * @brief 레이더 샘플링 배율 설정 \n
+         * @param[in] enable    샘플링 주파수 곱셈 활성화 여부:
          *     true	开启
          *	  false 关闭
          */

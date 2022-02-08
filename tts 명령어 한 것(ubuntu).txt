@@ -1,0 +1,1 @@
+tts --text "Hi Nice to meet you" --model_name "tts_models/en/ek1/tacotron2"  --vocoder_name "vocoder_models/en/ek1/wavegrad"  --out_path /home/gdl1/gdl/caption_data/speech.wav

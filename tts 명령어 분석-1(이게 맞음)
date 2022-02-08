@@ -1,0 +1,2 @@
+명령어로 쓰는 패키지가 없으면 처음에 "/usr/local/bin/tts"에서 실행(tts를 예로 들자면)
+명령어로 쓰는 패키지가 있으면 처음에 "/home/gdl1/.local/bin/tts"에서 실행

@@ -14,7 +14,7 @@ from PIL import Image
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
-def caption_image_beam_search(encoder, decoder, image_path, word_map, beam_size=3):
+def caption_image_beam_search(encoder, decoder, img, word_map, beam_size=3):
     """
     Reads an image and captions it with beam search.
 
@@ -30,7 +30,7 @@ def caption_image_beam_search(encoder, decoder, image_path, word_map, beam_size=
     vocab_size = len(word_map)
 
     # Read image and process
-    img = imread(image_path)
+    # img = imread(image_path)
     if len(img.shape) == 2:
         img = img[:, :, np.newaxis]
         # 흑백 이미지일 때 np.newaxis을 넣어줌으로써 3차원으로 변경. but img.shape=(x,y)->(x,y,1)로만 변경된 것

@@ -4,7 +4,7 @@ import sys
 sys.path.append("/home/gdl1/gdl")
 sys.path.append("/home/gdl1/gdl/ImageCaptioning")
 sys.path.append("/home/gdl1/gdl/TTS")
-from ImageCaptioning import caption
+from ImageCaptioning import caption_origin
 import torch
 import json
 from TTS.bin import *
@@ -35,7 +35,7 @@ def Video_capture():
         return frame
 
 def main():
-    image_path = "/home/gdl1/gdl/caption_data/street.jpg"
+    image_path = "/home/gdl1/gdl/caption_data/ski.jpg"
     #img = Video_capture()``
     if image_path==0:
         pass
@@ -55,7 +55,7 @@ def main():
         word_map = json.load(j)
     rev_word_map = {v: k for k, v in word_map.items()}
 
-    seq, _ = caption.caption_image_beam_search(encoder, decoder, image_path, word_map, beam_size)
+    seq, _ = caption_origin.caption_image_beam_search(encoder, decoder, image_path, word_map, beam_size)
     words = [rev_word_map[ind] for ind in seq]
     words = words[1:len(words)-1]
     sentence = ""
@@ -81,7 +81,8 @@ def main():
         vocoder_path,
         vocoder_config_path,
         encoder_path,
-        encoder_config_path
+        encoder_config_path,
+        use_cuda=True
     )
 
     print(" > Text: {}".format(sentence))
@@ -95,16 +96,16 @@ def main():
     print(" > Saving output to {}".format(out_path))
     synthesizer.save_wav(wav, out_path)
 
-    # 원격 파일 실행
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect('192.168.123.8',22,'pi','skdnwjd1')
+    ### 원격 파일 실행
+    ##ssh = paramiko.SSHClient()
+    ##ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ##ssh.connect('192.168.123.8',22,'pi','skdnwjd1')
 
-    # ssh로 파일 업로드
-    sftp = ssh.open_sftp()
-    sftp.put('/home/gdl1/gdl/caption_data/a_group_of_people_wa.wav', '/home/pi/a_group_of_people_wa.wav')
+    ### ssh로 파일 업로드
+    ##sftp = ssh.open_sftp()
+    ##sftp.put('/home/gdl1/gdl/caption_data/a_group_of_people_wa.wav', '/home/pi/a_group_of_people_wa.wav')
 
-    ssh.exec_command("python3 sound.py")
+    ##ssh.exec_command("python3 sound.py")
     print("실행완료")
 
 if __name__ == "__main__":

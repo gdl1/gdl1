@@ -1,0 +1,14 @@
+#/usr/local/bin/tts 32번째 줄 분석
+r은 308p  참고
+()는 312p
+32번째 줄 의미
+->    sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
+    # re.sub(pattern, new_text, text)
+    # text에서 pattern에 맞는 부분을 new_text로 대체하라는 의미
+    # 명령줄에서 tts ~~~ 하면 ~~~ = sys.argv[0]이고 ~~~의 끝 부분이 
+    #-script.py or -script.pyw 이거나 .exe와 매치된다면 공백으로 표시하라는 것
+    # \.는 .가 메타문자로 쓰이지 않고 .의 그대로의 문자로 쓰라는 의미(307p 참고)
+      (메타문자 .: 줄바꿈 문자 \n를 제외한 모든 문자와 매치됨을 의미, 294p 참고)
+    # ? 메타문자: ?의 앞 문자가 0~1번 사용되면 매치됨을 의미(297p 참고)
+    # $: 문자열의 끝과 매치함을 의미(310p 참고)
+    # r: 정규식이 Raw String 규칙에 의함을 의미(308p 참고)
